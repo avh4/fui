@@ -1,4 +1,4 @@
-(defproject fui "0.1.0-SNAPSHOT"
+(defproject net.avh4/fui "0.1.0-SNAPSHOT"
   :description "Functional reactive Clojure wrapper for Swing GUI development"
   :url "http://github.com/avh4/fui"
   :dependencies [[org.clojure/clojure "1.5.1"]
