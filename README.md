@@ -1,13 +1,9 @@
+[![Build Status](https://secure.travis-ci.org/avh4/fui.png?branch=master)](http://travis-ci.org/avh4/fui)
+
 # fui
 
-A Clojure library designed to ... well, that part is up to you.
-
-## Usage
-
-FIXME
+Functional reactive Clojure wrapper for Swing GUI development.
 
 ## License
 
-Copyright © 2013 FIXME
-
-Distributed under the Eclipse Public License, the same as Clojure.
+Copyright (C) 2013 Aaron VonderHaar
