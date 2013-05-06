@@ -25,7 +25,6 @@
           (paintComponent [g]
             (doseq [command @graphics-ref]
               (draw command g))) ) ]
-
     (receive-all graphics-signal
       (fn [x] (do
         (dosync (ref-set graphics-ref x))
@@ -33,10 +32,14 @@
 
     self))
 
-(defn window [component]
-  (doto (new JFrame)
-    (.add component)
-    (.setDefaultCloseOperation WindowConstants/EXIT_ON_CLOSE)))
+(defn window [component title-signal]
+  (let [self (new JFrame)]
+    (receive-all title-signal
+      (fn [title]
+        (SwingUtilities/invokeLater #(.setTitle self title))))
+    (doto self
+      (.add component)
+      (.setDefaultCloseOperation WindowConstants/EXIT_ON_CLOSE)) ))
 
 (defn show [window]
   (SwingUtilities/invokeLater
