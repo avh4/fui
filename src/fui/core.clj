@@ -2,6 +2,7 @@
   (:use [lamina.core]))
 (import '(javax.swing JFrame JComponent SwingUtilities WindowConstants))
 (import '(java.awt Dimension Graphics Color Font RenderingHints))
+(import '(java.awt.event MouseListener))
 
 (defmulti draw :shape)
 (defmethod draw :rect [{color :color [x y w h] :bounds} g]
@@ -21,21 +22,28 @@
      (proxy [java.awt.event.ActionListener] []
        (actionPerformed [~'event] ~@body))))
 
-(defn component [width height graphics-signal]
+(defn component [width height graphics-signal input-channel]
   (let [graphics-ref (ref [])
-        self (proxy [JComponent] []
-          (getPreferredSize[] (new Dimension width height))
+        self (proxy [JComponent MouseListener] []
+          (getPreferredSize [] (new Dimension width height))
           (paintComponent [g]
             (.setRenderingHint g
                     RenderingHints/KEY_TEXT_ANTIALIASING
                     RenderingHints/VALUE_TEXT_ANTIALIAS_ON)
             (doseq [command @graphics-ref]
-              (draw command g))) ) ]
+              (draw command g)))
+          (mouseClicked [e]
+            (enqueue input-channel [(.getX e) (.getY e)]))
+          (mouseEntered [e])
+          (mouseExited [e])
+          (mousePressed [e])
+          (mouseReleased [e])
+          ) ]
+    (.addMouseListener self self)
     (receive-all graphics-signal
       (fn [x] (do
         (dosync (ref-set graphics-ref x))
         (SwingUtilities/invokeLater #(.repaint self)))))
-
     self))
 
 (defn window [component title-signal]
