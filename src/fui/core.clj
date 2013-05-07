@@ -1,9 +1,7 @@
 (ns fui.core
   (:use [lamina.core]))
 (import '(javax.swing JFrame JComponent SwingUtilities WindowConstants))
-(import '(java.awt Dimension Graphics Color))
-
-(defn color [r g b] (new Color r g b))
+(import '(java.awt Dimension Graphics Color Font RenderingHints))
 
 (defmulti draw :shape)
 (defmethod draw :rect [{color :color [x y w h] :bounds} g]
@@ -12,6 +10,11 @@
 (defmethod draw :oval [{color :color [x y w h] :bounds} g]
   (.setColor g color)
   (.fillOval g x y w h))
+(def load-font (memoize (fn [font font-size] (new Font font 0 font-size))))
+(defmethod draw :text [{:keys [text font font-size color left-x baseline-y]} g]
+  (.setColor g color)
+  (.setFont g (load-font font font-size))
+  (.drawString g text left-x baseline-y))
 
 (defmacro with-action [component & body]
   `(.addActionListener ~component
@@ -23,6 +26,9 @@
         self (proxy [JComponent] []
           (getPreferredSize[] (new Dimension width height))
           (paintComponent [g]
+            (.setRenderingHint g
+                    RenderingHints/KEY_TEXT_ANTIALIASING
+                    RenderingHints/VALUE_TEXT_ANTIALIAS_ON)
             (doseq [command @graphics-ref]
               (draw command g))) ) ]
     (receive-all graphics-signal
