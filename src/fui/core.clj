@@ -4,7 +4,7 @@
 (import '(java.awt Dimension Graphics Color Font RenderingHints))
 (import '(java.awt.event MouseListener MouseMotionListener))
 
-(defmulti draw :shape)
+(defmulti draw (fn [command g] (if (nil? command) :null (:shape command))))
 (defmethod draw :rect [{color :color [x y w h] :bounds} g]
   (.setColor g color)
   (.fillRect g x y w h))
@@ -16,6 +16,9 @@
   (.setColor g color)
   (.setFont g (load-font font font-size))
   (.drawString g text left-x baseline-y))
+(defmethod draw :default [command g]
+  (print "WARNING: No method in multimethod 'draw' for dispatch value: ")
+  (prn command))
 
 (defmacro with-action [component & body]
   `(.addActionListener ~component
